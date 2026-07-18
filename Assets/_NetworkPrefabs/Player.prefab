@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4743256779378356117}
+  - component: {fileID: 6606010409540274987}
   m_Layer: 0
   m_Name: Detector
   m_TagString: Untagged
@@ -31,6 +32,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2084376289498346152}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6606010409540274987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1108873713408457451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b78847293b0e8546af33083f802feae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractionDetector
+  _detectionRadius: 3
+  _detectionsAngle: 60
+  _pickupLayer:
+    serializedVersion: 2
+    m_Bits: 72
 --- !u!1 &1855797244298458106
 GameObject:
   m_ObjectHideFlags: 0
@@ -124,7 +142,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 359018094
+  GlobalObjectIdHash: 4209079856
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -168,6 +186,9 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   _myPlayerInput: {fileID: 3381137874320769542}
   _agentMover: {fileID: 6895321537121219383}
+  _interactionDetector: {fileID: 6606010409540274987}
+  _animator: {fileID: 637217615066948756}
+  _animationEvents: {fileID: 5516115944685011280}
 --- !u!114 &-237079437468191290
 MonoBehaviour:
   m_ObjectHideFlags: 0

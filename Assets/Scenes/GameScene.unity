@@ -1975,6 +1975,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 55.601
       objectReference: {fileID: 0}
+    - target: {fileID: 5094122211370564373, guid: 0d813fa26ac4fa24889ecc38506d5edd, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 3192573935
+      objectReference: {fileID: 0}
+    - target: {fileID: 5094122211370564373, guid: 0d813fa26ac4fa24889ecc38506d5edd, type: 3}
+      propertyPath: SceneMigrationSynchronization
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5094122211370564373, guid: 0d813fa26ac4fa24889ecc38506d5edd, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 968823590
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2170,6 +2182,18 @@ PrefabInstance:
     - target: {fileID: -1926054152944378366, guid: 0f593c205eb9e5a48825e85731d1f215, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 1224988709
+      objectReference: {fileID: 0}
+    - target: {fileID: 828088268117976049, guid: 0f593c205eb9e5a48825e85731d1f215, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1011653526
+      objectReference: {fileID: 0}
+    - target: {fileID: 828088268117976049, guid: 0f593c205eb9e5a48825e85731d1f215, type: 3}
+      propertyPath: SceneMigrationSynchronization
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 828088268117976049, guid: 0f593c205eb9e5a48825e85731d1f215, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 1723311826
       objectReference: {fileID: 0}
     - target: {fileID: 7150301565930258685, guid: 0f593c205eb9e5a48825e85731d1f215, type: 3}
       propertyPath: m_Name
@@ -2456,7 +2480,7 @@ MonoBehaviour:
   SynchronizeTransform: 1
   <InScenePlaced>k__BackingField: 0
   ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
+  SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
