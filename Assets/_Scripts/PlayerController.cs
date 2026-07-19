@@ -1,6 +1,7 @@
 using System;
 using Unity.Netcode;
 using Unity.VisualScripting;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 
 public class PlayerController : NetworkBehaviour
@@ -13,19 +14,43 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private  AnimationEvents _animationEvents;
 
 
-    private bool _isInteracting;
+    private bool _isInteracting, _isChooping;
     [SerializeField] private GameObject _axeModel, _picaxeModel, _woodModel, _stoneModel;
+    private ResourceSpawner _resourceSpawner;
     private NetworkVariable<ulong>_heldNetworkObjectId = new(ulong.MaxValue);
     private NetworkVariable<ObjectType> _heldObjectType = new(ObjectType.None);
+
+    private void Awake()
+    {
+        _resourceSpawner = FindAnyObjectByType<ResourceSpawner>();
+    }
 
     private void OnEnable()
     {
         _myPlayerInput.OnPickUpPressed += HandlePickUpPressed;
+        _myPlayerInput.OnInteractPressed += HandheActionsPressed;
     }
 
-     private void HandlePickUpPressed()
+    private void HandheActionsPressed()
     {
-        if (_isInteracting)
+        if(IsOwner == false)
+        {
+            return;
+        }
+        if(_isChooping || _isInteracting)
+        {
+            return;
+        }
+        if(_heldObjectType.Value is ObjectType.Axe or ObjectType.PickAxe)
+        {
+            _animator.SetTrigger("Chop");
+            _isChooping = true;
+        }
+    }
+
+    private void HandlePickUpPressed()
+    {
+        if (_isInteracting || _isChooping)
         {
             return;
         }
@@ -40,6 +65,7 @@ public class PlayerController : NetworkBehaviour
     private void OnDisable()
     {
         _myPlayerInput.OnPickUpPressed -= HandlePickUpPressed;
+        _myPlayerInput.OnInteractPressed -= HandheActionsPressed;
     }
 
     public override void OnNetworkSpawn()
@@ -52,7 +78,34 @@ public class PlayerController : NetworkBehaviour
         {
             _animationEvents.OnInteract += HandleInteractActions;
             _animationEvents.OnAnimationDone += HandleAnimationDone;
+            _animationEvents.OnChop += HandleChopAction;
         }
+    }
+
+    private void HandleChopAction()
+    {
+        if(_heldObjectType.Value is ObjectType.Axe or ObjectType.PickAxe)
+        {
+            if(_interactionDetector.ClosestInteractable is ResourceNode)
+            {
+                RequestResourceNodeInteractionServerRpc(_interactionDetector.ClosestInteractable.NetworkObject.NetworkObjectId);
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    private void RequestResourceNodeInteractionServerRpc(ulong networkObjectId)
+    {
+        if(!NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(networkObjectId, out NetworkObject target))
+        {
+            return;
+        }
+        if(!target.TryGetComponent(out ResourceNode node))
+        {
+            return;
+        }
+
+        node.Harvest(_heldObjectType.Value);
     }
 
     private void HandleItemOnJoin()
@@ -74,6 +127,7 @@ public class PlayerController : NetworkBehaviour
     private void HandleAnimationDone()
     {
         _isInteracting = false;
+        _isChooping = false;
     }
 
     private void HandleInteractActions()
@@ -133,6 +187,11 @@ public class PlayerController : NetworkBehaviour
                 }
             }
         }
+        else
+        {
+            _resourceSpawner.SpawnResource(_heldObjectType.Value, transform.position);
+        }
+
         _heldObjectType.Value = ObjectType.None;
         _heldNetworkObjectId.Value = ulong.MaxValue;
     }
@@ -140,21 +199,24 @@ public class PlayerController : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         _heldObjectType.OnValueChanged -= HandleHeldItemChance;
+    
+        if (IsServer && NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+        {
+            DropCurrentItem();
+        }
+
         if (IsOwner)
         {
-            RequestDropServerRpc();
+            // DİKKAT: Buradaki RequestDropServerRpc() satırını sildik!
             _animationEvents.OnInteract -= HandleInteractActions;
             _animationEvents.OnAnimationDone -= HandleAnimationDone;
+            _animationEvents.OnChop -= HandleChopAction;
         }
+        
         base.OnNetworkDespawn();
     }
 
-    [Rpc(SendTo.Server)]
-    private void RequestDropServerRpc()
-    {
-        DropCurrentItem();
-    }
-
+    
     void Update()
     {
         if(IsOwner == false)
@@ -162,6 +224,10 @@ public class PlayerController : NetworkBehaviour
             return;
         }
         Vector2 movementInput = _myPlayerInput.MovementInput;
+        if(_isChooping || _isInteracting)
+        {
+            movementInput = Vector2.zero;
+        }
         _agentMover.Move(movementInput);
     }
 }
