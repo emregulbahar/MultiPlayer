@@ -136,6 +136,34 @@ public class PlayerController : NetworkBehaviour
         {
             RequestPickUpServerRpc(_interactionDetector.ClosestInteractable.NetworkObject.NetworkObjectId);
         }
+        if(_interactionDetector.ClosestInteractable is ResourcePallet)
+        {
+            RequestGiveItemServerRpc(_interactionDetector.ClosestInteractable.NetworkObject.NetworkObjectId);
+        }
+    }
+
+
+    [Rpc(SendTo.Server)]
+    private void RequestGiveItemServerRpc(ulong networkObjectId)
+    {
+        if (!NetworkManager.SpawnManager.SpawnedObjects
+                .TryGetValue(networkObjectId, out NetworkObject target))
+        {
+            return;
+        }
+        if (!target.TryGetComponent(out ResourcePallet resourcePallet))
+        {
+            return;
+        }
+
+        if (resourcePallet.Interact(_heldObjectType.Value))
+        {
+            _heldObjectType.Value = ObjectType.None;
+            _heldNetworkObjectId.Value = ulong.MaxValue;
+        }
+           
+
+
     }
 
     [Rpc(SendTo.Server)]
@@ -198,22 +226,22 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-        _heldObjectType.OnValueChanged -= HandleHeldItemChance;
-    
-        if (IsServer && NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
-        {
-            DropCurrentItem();
-        }
-
+         _heldObjectType.OnValueChanged -= HandleHeldItemChance;
         if (IsOwner)
         {
-            // DİKKAT: Buradaki RequestDropServerRpc() satırını sildik!
+            RequestDropServerRpc();
             _animationEvents.OnInteract -= HandleInteractActions;
             _animationEvents.OnAnimationDone -= HandleAnimationDone;
             _animationEvents.OnChop -= HandleChopAction;
         }
-        
         base.OnNetworkDespawn();
+    }
+
+
+    [Rpc(SendTo.Server)]
+    private void RequestDropServerRpc()
+    {
+        DropCurrentItem();
     }
 
     
